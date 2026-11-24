@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning-Augmented Ski Rental | DAA Interactive Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Interactive Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- MathJax for crisp DAA mathematical notation -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom range slider styling for crisp cross-browser aesthetics */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 6px;
+            border-radius: 999px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #4f46e5;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+            margin-top: -6px;
+            transition: transform 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        .dark input[type=range]::-webkit-slider-thumb {
+            background: #818cf8;
+            border-color: #1e293b;
+        }
+        /* Smooth tab transitions */
+        .tab-panel {
+            animation: fadeIn 0.25s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 min-h-screen flex flex-col">
+
+    <!-- Top Navigation & Academic Header -->
+    <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                    <!-- Mountain / Ski SVG Icon -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8M14 7h7v7" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                            Learning-Augmented Ski Rental
+                        </h1>
+                        <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                            DAA Interactive Lab
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Online Algorithms with Machine Learning Predictions • Kumar, Purohit &amp; Svitkina Framework
+                    </p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs & Theme Toggle -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <nav class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700" role="tablist">
+                    <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm transition-all">
+                        Episode Simulator
+                    </button>
+                    <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all">
+                        Monte Carlo &amp; Pareto
+                    </button>
+                    <button onclick="switchTab('theory')" id="tab-btn-theory" class="tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all">
+                        Proofs &amp; Viva Notes
+                    </button>
+                </nav>
+
+                <button id="themeToggle" aria-label="Toggle Dark Mode" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors">
+                    <!-- Sun Icon -->
+                    <svg id="sunIcon" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <path stroke-linecap="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <!-- Moon Icon -->
+                    <svg id="moonIcon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- ===================================================================== -->
+        <!-- TAB 1: LIVE CALCULATOR & EPISODE SIMULATOR (DEFAULT LANDING VIEW)     -->
+        <!-- ===================================================================== -->
+        <div id="panel-simulator" class="tab-panel space-y-6">
+
+            <!-- Prominent Live Calculator Header & Quick Presets -->
+            <section class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 rounded-2xl p-5 sm:p-6 text-white shadow-lg shadow-indigo-500/15 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div class="space-y-1.5 max-w-2xl">
+                    <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/15 text-indigo-100 border border-white/20">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Live Interactive DAA Calculator
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">
+                        Calculate Costs, Thresholds &amp; Competitive Ratios
+                    </h2>
+                    <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed">
+                        Type exact values or drag sliders below to immediately compute Offline Optimal ($\text{OPT}$), Classical Deterministic, and Learning-Augmented decisions for general rental rate $r$ and purchase cost $B$.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <button onclick="applyPreset('consistent')" class="px-3 py-2 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-sm transition-all">
+                        🎯 Perfect ML Prediction
+                    </button>
+                    <button onclick="applyPreset('adv_short')" class="px-3 py-2 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-sm transition-all">
+                        ⚠️ Adversarial Under-Prediction
+                    </button>
+                    <button onclick="applyPreset('adv_long')" class="px-3 py-2 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-sm transition-all">
+                        ⚡ Adversarial Over-Prediction
+                    </button>
+                    <button onclick="resetDefaults()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-900/40 hover:bg-slate-900/60 text-indigo-100 border border-white/10 transition-all">
+                        Reset
+                    </button>
+                </div>
+            </section>
+
+            <!-- Primary Calculator Grid: Inputs on Left, Live Results & Derivation on Right -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Left Column (5 cols): Direct Numeric Inputs + Synchronized Sliders -->
+                <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-white">1. Input Parameters</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Edit numbers directly or use sliders</p>
+                        </div>
+                        <div class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-800/60 text-xs font-mono font-semibold text-indigo-700 dark:text-indigo-300">
+                            Break-even B/r = <span id="badge-breakeven">100.0</span>d
+                        </div>
+                    </div>
+
+                    <!-- Input 1: Buying Cost B -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center gap-2">
+                            <label for="num-B" class="text-sm font-semibold text-slate-700 dark:text-slate-200">Buying Cost ($B$)</label>
+                            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 focus-within:border-indigo-500">
+                                <span class="text-xs font-mono text-slate-500">₹</span>
+                                <input id="num-B" type="number" min="1" max="100000" step="10" value="1000" class="w-20 bg-transparent font-mono text-sm font-bold text-right text-slate-900 dark:text-white focus:outline-none">
+                            </div>
+                        </div>
+                        <input id="input-B" type="range" min="10" max="10000" step="10" value="1000" class="w-full bg-slate-200 dark:bg-slate-700 rounded-lg">
+                    </div>
+
+                    <!-- Input 2: Daily Rental Cost r -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center gap-2">
+                            <label for="num-r" class="text-sm font-semibold text-slate-700 dark:text-slate-200">Daily Rental Cost ($r$)</label>
+                            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 focus-within:border-indigo-500">
+                                <span class="text-xs font-mono text-slate-500">₹</span>
+                                <input id="num-r" type="number" min="1" max="5000" step="1" value="10" class="w-20 bg-transparent font-mono text-sm font-bold text-right text-slate-900 dark:text-white focus:outline-none">
+                                <span class="text-[11px] font-mono text-slate-400">/day</span>
+                            </div>
+                        </div>
+                        <input id="input-r" type="range" min="1" max="500" step="1" value="10" class="w-full bg-slate-200 dark:bg-slate-700 rounded-lg">
+                    </div>
+
+                    <!-- Input 3: Actual Skiing Days D -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center gap-2">
+                            <label for="num-D" class="text-sm font-semibold text-slate-700 dark:text-slate-200">Actual Skiing Days ($D$)</label>
+                            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 focus-within:border-indigo-500">
+                                <input id="num-D" type="number" min="1" max="1000" step="1" value="120" class="w-20 bg-transparent font-mono text-sm font-bold text-right text-slate-900 dark:text-white focus:outline-none">
+                                <span class="text-[11px] font-mono text-slate-400">days</span>
+                            </div>
+                        </div>
+                        <input id="input-D" type="range" min="1" max="300" step="1" value="120" class="w-full bg-slate-200 dark:bg-slate-700 rounded-lg">
+                    </div>
+
+                    <!-- Input 4: ML Predicted Days D_hat -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center gap-2">
+                            <label for="num-Dhat" class="text-sm font-semibold text-indigo-700 dark:text-indigo-300">ML Predicted Days ($\hat{D}$)</label>
+                            <div class="flex items-center gap-1 bg-indigo-50 dark:bg-indigo-950/80 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 focus-within:border-indigo-500">
+                                <input id="num-Dhat" type="number" min="1" max="1000" step="1" value="115" class="w-20 bg-transparent font-mono text-sm font-bold text-right text-indigo-700 dark:text-indigo-300 focus:outline-none">
+                                <span class="text-[11px] font-mono text-indigo-400">days</span>
+                            </div>
+                        </div>
+                        <input id="input-Dhat" type="range" min="1" max="300" step="1" value="115" class="w-full bg-indigo-200 dark:bg-indigo-900/60 rounded-lg">
+                        <div class="flex justify-between text-[11px] text-slate-400">
+                            <span>ML Forecast</span>
+                            <span id="pred-regime-label" class="font-semibold text-indigo-600 dark:text-indigo-400">D̂ ≥ B/r (Buy Early)</span>
+                        </div>
+                    </div>
+
+                    <!-- Input 5: Trust Hyperparameter lambda -->
+                    <div class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex justify-between items-center gap-2">
+                            <label for="num-lambda" class="text-sm font-semibold text-violet-700 dark:text-violet-300">Trust Parameter ($\lambda$)</label>
+                            <div class="flex items-center gap-1 bg-violet-50 dark:bg-violet-950/80 px-2.5 py-1 rounded-lg border border-violet-200 dark:border-violet-800 focus-within:border-violet-500">
+                                <input id="num-lambda" type="number" min="0.05" max="1.00" step="0.05" value="0.30" class="w-20 bg-transparent font-mono text-sm font-bold text-right text-violet-700 dark:text-violet-300 focus:outline-none">
+                            </div>
+                        </div>
+                        <input id="input-lambda" type="range" min="0.05" max="1.00" step="0.05" value="0.30" class="w-full bg-violet-200 dark:bg-violet-900/60 rounded-lg">
+                        <div class="flex justify-between text-[11px] text-slate-400">
+                            <span>0.05 (High ML Trust)</span>
+                            <span>1.00 (Classical Safe)</span>
+                        </div>
+                    </div>
+
+                    <!-- Log Observation Action Button -->
+                    <div class="pt-2">
+                        <button onclick="logCurrentObservation()" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add Current Result to Observation Table
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column (7 cols): Live Calculated Results, Bounds & Derivation -->
+                <div class="lg:col-span-7 space-y-5">
+
+                    <!-- 3 Primary Algorithm Output Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Offline Optimal -->
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Offline OPT</span>
+                                    <span class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">CR: 1.00×</span>
+                                </div>
+                                <div id="kpi-opt-cost" class="mt-2 text-2xl font-extrabold font-mono text-slate-900 dark:text-white">₹1,000</div>
+                            </div>
+                            <p id="kpi-opt-desc" class="mt-2 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-2">
+                                Buys on Day 1 (D ≥ B/r)
+                            </p>
+                        </div>
+
+                        <!-- Classical Deterministic -->
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Classical Algo</span>
+                                    <span id="kpi-class-ratio" class="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">CR: 1.99×</span>
+                                </div>
+                                <div id="kpi-class-cost" class="mt-2 text-2xl font-extrabold font-mono text-slate-900 dark:text-white">₹1,990</div>
+                            </div>
+                            <p id="kpi-class-desc" class="mt-2 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-2">
+                                Buys on Day ⌈B/r⌉ = 100
+                            </p>
+                        </div>
+
+                        <!-- Learning-Augmented -->
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border-2 border-indigo-500 dark:border-indigo-500/70 shadow-sm flex flex-col justify-between relative">
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">ML-Augmented</span>
+                                    <span id="kpi-la-ratio" class="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">CR: 1.29×</span>
+                                </div>
+                                <div id="kpi-la-cost" class="mt-2 text-2xl font-extrabold font-mono text-indigo-600 dark:text-indigo-400">₹1,290</div>
+                            </div>
+                            <p id="kpi-la-desc" class="mt-2 text-xs text-slate-600 dark:text-slate-300 font-medium border-t border-slate-100 dark:border-slate-800 pt-2">
+                                Trigger Buy Day: 30
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Theoretical Bounds & Net Advantage Strip -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-emerald-50/80 dark:bg-emerald-950/40 rounded-xl p-3.5 border border-emerald-200 dark:border-emerald-800/60">
+                            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Consistency Bound (1 + λ)</div>
+                            <div id="banner-consistency" class="mt-0.5 font-mono text-lg font-extrabold text-emerald-900 dark:text-emerald-200">1.30× OPT</div>
+                            <div class="text-[11px] text-emerald-700/80 dark:text-emerald-400/80">Guaranteed when D̂ = D</div>
+                        </div>
+
+                        <div class="bg-amber-50/80 dark:bg-amber-950/40 rounded-xl p-3.5 border border-amber-200 dark:border-amber-800/60">
+                            <div class="text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">Robustness Bound (1 + 1/λ)</div>
+                            <div id="banner-robustness" class="mt-0.5 font-mono text-lg font-extrabold text-amber-900 dark:text-amber-200">4.33× OPT</div>
+                            <div class="text-[11px] text-amber-700/80 dark:text-amber-400/80">Worst-case adversarial D̂</div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 rounded-xl p-3.5 border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Net Savings vs Classical</span>
+                                <span id="kpi-badge" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">ML Wins</span>
+                            </div>
+                            <div id="kpi-savings" class="mt-0.5 font-mono text-lg font-extrabold text-emerald-600 dark:text-emerald-400">+₹700</div>
+                            <div id="kpi-savings-desc" class="text-[11px] text-slate-500 dark:text-slate-400">35.2% cheaper than Classical</div>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Live Mathematical Derivation Box -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Live Step-by-Step Calculation Breakdown
+                            </h4>
+                            <span class="text-[11px] font-mono text-slate-400">Normalized k = B/r</span>
+                        </div>
+                        <div id="live-derivation-box" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 font-mono text-xs text-slate-700 dark:text-slate-200 space-y-1.5 leading-relaxed">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Cumulative Cost Chart -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white">Day-by-Day Cumulative Expenditure Trajectory</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            Shows daily rental growth (<span class="font-mono">+r</span>/day) up to <span class="font-mono">max(D, t_buy) + 5</span> days and the step jump (<span class="font-mono">+B</span>) upon purchasing skis
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Offline OPT</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-slate-400 inline-block"></span> Classical</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span> ML-Augmented</span>
+                    </div>
+                </div>
+                <div class="relative h-72 sm:h-80 w-full">
+                    <canvas id="episodeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Exportable DAA Observation Table -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white">DAA Lab Observation Table</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Record multiple test runs to compare competitive ratios and copy directly into your DAA lab report</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="copyObservationTable()" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition-colors">
+                            Copy Table (TSV)
+                        </button>
+                        <button onclick="clearObservationTable()" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">
+                            Clear Log
+                        </button>
+                    </div>
+                </div>
+
+                <div id="copy-toast" class="hidden text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 px-3 py-2 rounded-xl">
+                    Observation table copied to clipboard! Paste directly into Word, Google Docs, or Excel.
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                    <table class="w-full text-left border-collapse text-xs font-mono">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+                                <th class="py-2.5 px-3 font-semibold">#</th>
+                                <th class="py-2.5 px-3 font-semibold">B (₹)</th>
+                                <th class="py-2.5 px-3 font-semibold">r (₹)</th>
+                                <th class="py-2.5 px-3 font-semibold">D</th>
+                                <th class="py-2.5 px-3 font-semibold">D̂</th>
+                                <th class="py-2.5 px-3 font-semibold">λ</th>
+                                <th class="py-2.5 px-3 font-semibold">Buy Day</th>
+                                <th class="py-2.5 px-3 font-semibold">OPT (₹)</th>
+                                <th class="py-2.5 px-3 font-semibold">Class. CR</th>
+                                <th class="py-2.5 px-3 font-semibold text-indigo-600 dark:text-indigo-400">ML-Aug Cost</th>
+                                <th class="py-2.5 px-3 font-semibold text-indigo-600 dark:text-indigo-400">ML-Aug CR</th>
+                            </tr>
+                        </thead>
+                        <tbody id="observation-tbody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 2: MONTE CARLO NOISE & PARETO FRONTIER LAB                        -->
+        <!-- ===================================================================== -->
+        <div id="panel-analytics" class="tab-panel hidden space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-white">Empirical DAA Benchmarking Suite</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Synchronized with break-even <span class="font-mono font-semibold text-indigo-600 dark:text-indigo-400">B/r = <span id="sync-B">100</span>d</span> and <span class="font-mono font-semibold text-indigo-600 dark:text-indigo-400">λ = <span id="sync-lambda">0.30</span></span>.
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <label for="trial-count-select" class="text-xs font-medium text-slate-600 dark:text-slate-300">Trials:</label>
+                        <select id="trial-count-select" onchange="runAnalyticsSimulations()" class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-mono font-semibold text-slate-800 dark:text-slate-200">
+                            <option value="300">300</option>
+                            <option value="600" selected>600</option>
+                            <option value="1500">1500</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="sim-lambda-slider" class="text-xs font-medium text-slate-600 dark:text-slate-300">Quick λ:</label>
+                        <input id="sim-lambda-slider" type="range" min="0.05" max="1.00" step="0.05" value="0.30" class="w-24 bg-violet-200 dark:bg-violet-900/60 rounded-lg">
+                        <span id="sim-lambda-val" class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">0.30</span>
+                    </div>
+                    <button onclick="runAnalyticsSimulations()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Re-run Simulation
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Chart A: Competitive Ratio vs ML Noise -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                    <div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">1. Graceful Degradation vs. Prediction Noise ($\sigma$)</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            Mean competitive ratio over 600 random episodes ($D \sim \text{Uniform}[1, 2.5B]$) as Gaussian noise $\mathcal{N}(0, \sigma^2)$ corrupts $\hat{D}$.
+                        </p>
+                    </div>
+                    <div class="relative h-72 sm:h-80 w-full">
+                        <canvas id="noiseChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart B: Consistency vs Robustness Pareto Frontier -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                    <div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">2. Consistency vs. Robustness Trade-off Frontier</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            Theoretical bounds $(1 + \lambda)$ and $(1 + 1/\lambda)$ vs. exhaustive empirical worst-case across $\lambda \in [0.05, 1.0]$.
+                        </p>
+                    </div>
+                    <div class="relative h-72 sm:h-80 w-full">
+                        <canvas id="paretoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 3: THEORETICAL PROOFS & VIVA PREPARATION                          -->
+        <!-- ===================================================================== -->
+        <div id="panel-theory" class="tab-panel hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Pseudocode & Complexity Card -->
+                <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-slate-900 dark:text-white">Algorithm Pseudocode</h3>
+                        <span class="font-mono text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Time: O(1) per day</span>
+                    </div>
+                    <pre class="p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs leading-relaxed overflow-x-auto border border-slate-800"><code><span class="text-indigo-400 font-semibold">Algorithm</span> LearningAugmentedSkiRental(B, D_hat, λ):
+  <span class="text-slate-400">// Input: Buy cost B, ML prediction D_hat, trust λ ∈ (0, 1]</span>
+  <span class="text-emerald-400">if</span> D_hat >= B <span class="text-emerald-400">then</span>
+      t_buy ← ceil(λ * B)       <span class="text-slate-400">// Trust long trip: buy early</span>
+  <span class="text-emerald-400">else</span>
+      t_buy ← ceil(B / λ)       <span class="text-slate-400">// Trust short trip: wait longer</span>
+  <span class="text-emerald-400">end if</span>
+
+  <span class="text-emerald-400">for</span> day t = 1, 2, ... <span class="text-emerald-400">while</span> still skiing <span class="text-emerald-400">do</span>
+      <span class="text-emerald-400">if</span> t == t_buy <span class="text-emerald-400">then</span>
+          <span class="text-amber-300">BuySkis()</span>             <span class="text-slate-400">// Pay B, cost = (t_buy - 1) + B</span>
+          <span class="text-emerald-400">break</span>
+      <span class="text-emerald-400">else</span>
+          <span class="text-sky-300">RentSkis()</span>            <span class="text-slate-400">// Pay 1 for day t</span>
+      <span class="text-emerald-400">end if</span>
+  <span class="text-emerald-400">end for</span></code></pre>
+
+                    <div class="p-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 space-y-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">Key Viva Takeaways</h4>
+                        <ul class="text-xs text-slate-700 dark:text-slate-300 space-y-1.5 list-disc pl-4">
+                            <li><strong>Why Classical Fails to Use Predictions:</strong> Deterministic online algorithms assume an omniscient adversary, forcing a $2 - 1/B$ lower bound.</li>
+                            <li><strong>Role of $\lambda$:</strong> Interpolates smoothly between blind trust ($\lambda \to 0$) and classical worst-case safety ($\lambda = 1$).</li>
+                            <li><strong>Randomized Extension:</strong> Sampling $t_{\text{buy}}$ from an exponential distribution improves the frontier to $\left(\frac{\lambda}{1-e^{-\lambda}}, \frac{1}{1-e^{-\lambda}}\right)$, beating $e/(e-1) \approx 1.58$.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Mathematical Proofs Card -->
+                <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+                    <h3 class="font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+                        Formal Competitive Analysis Proofs
+                    </h3>
+
+                    <!-- Theorem 1: Consistency -->
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+                            Theorem 1: $(1 + \lambda)$-Consistency (When $\hat{D} = D$)
+                        </div>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Let $k = B/r$ denote the normalized purchase cost in rental days. Assume the ML predictor is exact ($\hat{D} = D$). We analyze two exhaustive cases:
+                        </p>
+                        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-2">
+                            <p><strong>Case 1 ($D \ge k$):</strong> Offline optimal buys on Day 1, so $\text{OPT} = B = kr$. Since $\hat{D} = D \ge k$, our algorithm sets $t_{\text{buy}} = \lceil \lambda k \rceil \le \lambda k + 1$. Since $D \ge k \ge \lceil \lambda k \rceil$, the algorithm buys on day $t_{\text{buy}}$:
+                            $$\text{ALG} = (\lceil \lambda k \rceil - 1)r + B \le \lambda kr + B = (1 + \lambda)B = (1 + \lambda)\text{OPT}$$
+                            </p>
+                            <p><strong>Case 2 ($D &lt; k$):</strong> Offline optimal rents every day, so $\text{OPT} = Dr$. Since $\hat{D} = D &lt; k$, the algorithm sets $t_{\text{buy}} = \lceil k/\lambda \rceil \ge k &gt; D$. The trip ends before day $t_{\text{buy}}$, so it rents all $D$ days:
+                            $$\text{ALG} = Dr = 1 \cdot \text{OPT} \le (1 + \lambda)\text{OPT}$$
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Theorem 2: Robustness -->
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 text-xs font-bold">
+                            Theorem 2: $(1 + 1/\lambda)$-Robustness (Arbitrary Prediction Error)
+                        </div>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Suppose $\hat{D}$ is adversarially inaccurate. With $k = B/r$, we bound $\text{ALG}/\text{OPT}$ across both prediction regimes:
+                        </p>
+                        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-2">
+                            <p><strong>Case 1 ($\hat{D} \ge k$, so $t_{\text{buy}} = \lceil \lambda k \rceil$):</strong> Maximum cost occurs if $D \ge t_{\text{buy}}$, yielding $\text{ALG} \le \lambda kr + B = (1 + \lambda)B$. Meanwhile, $\text{OPT} = \min(Dr, B) \ge \min(\lceil \lambda k \rceil r, B) \ge \lambda B$. Thus:
+                            $$\frac{\text{ALG}}{\text{OPT}} \le \frac{(1 + \lambda)B}{\lambda B} = 1 + \frac{1}{\lambda}$$
+                            </p>
+                            <p><strong>Case 2 ($\hat{D} &lt; k$, so $t_{\text{buy}} = \lceil k/\lambda \rceil$):</strong> If $D \ge t_{\text{buy}}$, $\text{OPT} = B$ and:
+                            $$\text{ALG} = (\lceil k/\lambda \rceil - 1)r + B &lt; \frac{k}{\lambda}r + B = \left(1 + \frac{1}{\lambda}\right)\text{OPT}$$
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 py-4 px-4 text-center text-xs text-slate-500 dark:text-slate-400">
+        Design &amp; Analysis of Algorithms (DAA) Project • Learning-Augmented Online Algorithms Simulator
+    </footer>
+
+    <!-- Application Logic & Charting -->
+    <script>
+        // ---------------------------------------------------------
+        // 1. STATE MANAGEMENT
+        // ---------------------------------------------------------
+        const state = {
+            B: 1000,
+            r: 10,
+            D: 120,
+            D_hat: 115,
+            lambda: 0.30,
+            activeTab: 'simulator',
+            observations: []
+        };
+
+        let episodeChart = null;
+        let noiseChart = null;
+        let paretoChart = null;
+
+        // ---------------------------------------------------------
+        // 2. CORE ALGORITHMIC FUNCTIONS (GENERALIZED B & r)
+        // ---------------------------------------------------------
+        function calcOptimalCost(D, B, r) {
+            return Math.min(D * r, B);
+        }
+
+        function calcClassicalBuyDay(B, r) {
+            return Math.max(1, Math.ceil(B / r));
+        }
+
+        function calcClassicalCost(D, B, r) {
+            const buyDay = calcClassicalBuyDay(B, r);
+            if (D < buyDay) return D * r;
+            return (buyDay - 1) * r + B;
+        }
+
+        function getLearningAugmentedThreshold(B, r, D_hat, lam) {
+            const k = B / r;
+            const raw = (D_hat >= k) ? Math.ceil(lam * k) : Math.ceil(k / lam);
+            return Math.max(1, raw);
+        }
+
+        function calcLearningAugmentedCost(D, B, r, D_hat, lam) {
+            const buyDay = getLearningAugmentedThreshold(B, r, D_hat, lam);
+            if (D < buyDay) return D * r;
+            return (buyDay - 1) * r + B;
+        }
+
+        // Generate day-by-day cumulative cost array up to horizonDays
+        function getDailyCostSeries(horizonDays, B, r, buyDay) {
+            const series = [];
+            for (let day = 1; day <= horizonDays; day++) {
+                if (day < buyDay) {
+                    series.push(day * r); // Renting ₹r per day
+                } else {
+                    series.push((buyDay - 1) * r + B); // Bought on buyDay, ₹0 subsequent days
+                }
+            }
+            return series;
+        }
+
+        function formatINR(num) {
+            return '₹' + Math.round(num).toLocaleString('en-IN');
+        }
+
+        // ---------------------------------------------------------
+        // 3. UI & LIVE CALCULATOR UPDATES
+        // ---------------------------------------------------------
+        function syncInputsToState() {
+            document.getElementById('num-B').value = state.B;
+            document.getElementById('input-B').value = Math.min(10000, Math.max(10, state.B));
+
+            document.getElementById('num-r').value = state.r;
+            document.getElementById('input-r').value = Math.min(500, Math.max(1, state.r));
+
+            document.getElementById('num-D').value = state.D;
+            document.getElementById('input-D').value = Math.min(300, Math.max(1, state.D));
+
+            document.getElementById('num-Dhat').value = state.D_hat;
+            document.getElementById('input-Dhat').value = Math.min(300, Math.max(1, state.D_hat));
+
+            document.getElementById('num-lambda').value = state.lambda.toFixed(2);
+            document.getElementById('input-lambda').value = state.lambda;
+            document.getElementById('sim-lambda-slider').value = state.lambda;
+            document.getElementById('sim-lambda-val').textContent = state.lambda.toFixed(2);
+        }
+
+        function updateEpisodeSimulator() {
+            const { B, r, D, D_hat, lambda } = state;
+            const k = B / r;
+
+            document.getElementById('badge-breakeven').textContent = Number.isInteger(k) ? k : k.toFixed(1);
+            document.getElementById('sync-B').textContent = Number.isInteger(k) ? k : k.toFixed(1);
+            document.getElementById('sync-lambda').textContent = lambda.toFixed(2);
+
+            // Theoretical bounds
+            const consBound = (1 + lambda).toFixed(2);
+            const robBound = (1 + 1 / lambda).toFixed(2);
+            document.getElementById('banner-consistency').textContent = `${consBound}× OPT`;
+            document.getElementById('banner-robustness').textContent = `${robBound}× OPT`;
+
+            // Regime indicator & threshold calculation
+            const classBuyDay = calcClassicalBuyDay(B, r);
+            const laBuyDay = getLearningAugmentedThreshold(B, r, D_hat, lambda);
+            const regimeLabel = document.getElementById('pred-regime-label');
+            const derivationBox = document.getElementById('live-derivation-box');
+
+            const optCost = calcOptimalCost(D, B, r);
+            const classCost = calcClassicalCost(D, B, r);
+            const laCost = calcLearningAugmentedCost(D, B, r, D_hat, lambda);
+
+            const classRatio = (classCost / optCost).toFixed(2);
+            const laRatio = (laCost / optCost).toFixed(2);
+
+            let step1Text, step2Text, step3Text;
+            step1Text = `1. Break-even ratio k = B / r = ${B} / ${r} = ${k.toFixed(2)} days.`;
+
+            if (D_hat >= k) {
+                regimeLabel.textContent = 'Regime: D̂ ≥ B/r (Buy Early)';
+                step2Text = `2. Since D̂ (${D_hat}) ≥ k (${k.toFixed(1)}), trigger buy day t_buy = ⌈λ · k⌉ = ⌈${lambda.toFixed(2)} × ${k.toFixed(2)}⌉ = Day ${laBuyDay}.`;
+            } else {
+                regimeLabel.textContent = 'Regime: D̂ < B/r (Delay Buy)';
+                step2Text = `2. Since D̂ (${D_hat}) < k (${k.toFixed(1)}), delay buy day t_buy = ⌈k / λ⌉ = ⌈${k.toFixed(2)} / ${lambda.toFixed(2)}⌉ = Day ${laBuyDay}.`;
+            }
+
+            if (D < laBuyDay) {
+                step3Text = `3. Because actual trip D (${D}) < t_buy (${laBuyDay}), skis are rented all ${D} days → ALG = ${D} × ₹${r} = ${formatINR(laCost)} (CR = ${laRatio}×).`;
+            } else {
+                step3Text = `3. Because actual trip D (${D}) ≥ t_buy (${laBuyDay}), rent ${laBuyDay - 1} days + buy on Day ${laBuyDay} → ALG = (${laBuyDay - 1} × ₹${r}) + ₹${B} = ${formatINR(laCost)} (CR = ${laRatio}×).`;
+            }
+
+            derivationBox.innerHTML = `<div>${step1Text}</div><div>${step2Text}</div><div class="text-indigo-700 dark:text-indigo-300 font-semibold">${step3Text}</div>`;
+
+            // Update KPI Cards
+            document.getElementById('kpi-opt-cost').textContent = formatINR(optCost);
+            document.getElementById('kpi-opt-desc').textContent = (D * r >= B) ? `Buys on Day 1 (B ≤ D·r)` : `Rents all ${D} days (D·r < B)`;
+
+            document.getElementById('kpi-class-cost').textContent = formatINR(classCost);
+            document.getElementById('kpi-class-ratio').textContent = `CR: ${classRatio}×`;
+            document.getElementById('kpi-class-desc').textContent = D >= classBuyDay ? `Buys on Day ⌈B/r⌉ = ${classBuyDay}` : `Rents ${D} days (< ${classBuyDay})`;
+
+            document.getElementById('kpi-la-cost').textContent = formatINR(laCost);
+            document.getElementById('kpi-la-ratio').textContent = `CR: ${laRatio}×`;
+            document.getElementById('kpi-la-desc').textContent = D >= laBuyDay ? `Bought on Day ${laBuyDay}` : `Rented ${D} days (t_buy=${laBuyDay})`;
+
+            // Savings / Comparison Card
+            const diff = classCost - laCost;
+            const savingsEl = document.getElementById('kpi-savings');
+            const badgeEl = document.getElementById('kpi-badge');
+            const savingsDesc = document.getElementById('kpi-savings-desc');
+
+            if (diff > 0) {
+                const pct = ((diff / classCost) * 100).toFixed(1);
+                savingsEl.textContent = `+${formatINR(diff)}`;
+                savingsEl.className = 'mt-0.5 font-mono text-lg font-extrabold text-emerald-600 dark:text-emerald-400';
+                badgeEl.textContent = 'ML Wins';
+                badgeEl.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300';
+                savingsDesc.textContent = `${pct}% cheaper than Classical`;
+            } else if (diff < 0) {
+                const pct = ((Math.abs(diff) / classCost) * 100).toFixed(1);
+                savingsEl.textContent = `-${formatINR(Math.abs(diff))}`;
+                savingsEl.className = 'mt-0.5 font-mono text-lg font-extrabold text-rose-600 dark:text-rose-400';
+                badgeEl.textContent = 'ML Penalty';
+                badgeEl.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300';
+                savingsDesc.textContent = `${pct}% costlier due to inaccurate D̂`;
+            } else {
+                savingsEl.textContent = `₹0`;
+                savingsEl.className = 'mt-0.5 font-mono text-lg font-extrabold text-slate-600 dark:text-slate-300';
+                badgeEl.textContent = 'Tied';
+                badgeEl.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+                savingsDesc.textContent = `Identical cost to Classical`;
+            }
+
+            renderEpisodeChart(D, B, r, classBuyDay, laBuyDay);
+        }
+
+        function renderEpisodeChart(D, B, r, classBuyDay, laBuyDay) {
+            const ctx = document.getElementById('episodeChart').getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(148, 163, 184, 0.12)' : 'rgba(148, 163, 184, 0.2)';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+
+            // Plot up to max(D, min(laBuyDay, D + 15)) + 5 days so buy threshold is clearly visible
+            const horizon = Math.min(600, Math.max(D, Math.min(laBuyDay, D + 25)) + 5);
+            const labels = Array.from({ length: horizon }, (_, i) => `Day ${i + 1}`);
+            const optBuyDay = (D * r >= B) ? 1 : horizon + 1;
+
+            const optSeries = getDailyCostSeries(horizon, B, r, optBuyDay);
+            const classSeries = getDailyCostSeries(horizon, B, r, classBuyDay);
+            const laSeries = getDailyCostSeries(horizon, B, r, laBuyDay);
+
+            if (episodeChart) {
+                episodeChart.destroy();
+            }
+
+            episodeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Learning-Augmented (ML)',
+                            data: laSeries,
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.12)',
+                            borderWidth: 3,
+                            pointRadius: horizon <= 45 ? 3 : 0,
+                            pointHoverRadius: 5,
+                            tension: 0.05,
+                            fill: false
+                        },
+                        {
+                            label: 'Classical Deterministic',
+                            data: classSeries,
+                            borderColor: isDark ? '#94a3b8' : '#64748b',
+                            borderDash: [6, 4],
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            tension: 0.05
+                        },
+                        {
+                            label: 'Offline Optimal (OPT)',
+                            data: optSeries,
+                            borderColor: '#10b981',
+                            borderWidth: 2.5,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            tension: 0.05
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: isDark ? '#0f172a' : '#1e293b',
+                            titleFont: { family: 'Inter', size: 12 },
+                            bodyFont: { family: 'JetBrains Mono', size: 12 },
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                title: (items) => {
+                                    const dayNum = items[0].dataIndex + 1;
+                                    return dayNum === D ? `Day ${dayNum} (Actual Trip End D)` : `Day ${dayNum}`;
+                                },
+                                label: (ctx) => `${ctx.dataset.label}: ${formatINR(ctx.parsed.y)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: textColor,
+                                maxTicksLimit: 10,
+                                font: { family: 'Inter', size: 11 }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: textColor,
+                                font: { family: 'JetBrains Mono', size: 11 },
+                                callback: (val) => formatINR(val)
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ---------------------------------------------------------
+        // 4. OBSERVATION TABLE LOGGING & EXPORT
+        // ---------------------------------------------------------
+        function logCurrentObservation() {
+            const { B, r, D, D_hat, lambda } = state;
+            const laBuyDay = getLearningAugmentedThreshold(B, r, D_hat, lambda);
+            const optCost = calcOptimalCost(D, B, r);
+            const classCost = calcClassicalCost(D, B, r);
+            const laCost = calcLearningAugmentedCost(D, B, r, D_hat, lambda);
+
+            state.observations.push({
+                B,
+                r,
+                D,
+                D_hat,
+                lambda: lambda.toFixed(2),
+                laBuyDay,
+                optCost,
+                classCR: (classCost / optCost).toFixed(2) + '×',
+                laCost,
+                laCR: (laCost / optCost).toFixed(2) + '×'
+            });
+            renderObservationTable();
+        }
+
+        function renderObservationTable() {
+            const tbody = document.getElementById('observation-tbody');
+            if (state.observations.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="py-4 px-3 text-center text-slate-400 font-sans">No logged runs yet. Adjust parameters above and click "Add Current Result to Observation Table".</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = state.observations.map((row, idx) => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                    <td class="py-2 px-3 text-slate-400">${idx + 1}</td>
+                    <td class="py-2 px-3">₹${row.B}</td>
+                    <td class="py-2 px-3">₹${row.r}</td>
+                    <td class="py-2 px-3">${row.D}</td>
+                    <td class="py-2 px-3">${row.D_hat}</td>
+                    <td class="py-2 px-3">${row.lambda}</td>
+                    <td class="py-2 px-3">Day ${row.laBuyDay}</td>
+                    <td class="py-2 px-3">₹${row.optCost}</td>
+                    <td class="py-2 px-3">${row.classCR}</td>
+                    <td class="py-2 px-3 font-bold text-indigo-600 dark:text-indigo-400">₹${row.laCost}</td>
+                    <td class="py-2 px-3 font-bold text-indigo-600 dark:text-indigo-400">${row.laCR}</td>
+                </tr>
+            `).join('');
+        }
+
+        function copyObservationTable() {
+            if (state.observations.length === 0) return;
+            const header = ['#', 'B (INR)', 'r (INR)', 'D', 'D_hat', 'Lambda', 'Buy Day', 'OPT (INR)', 'Classical CR', 'ML-Aug Cost (INR)', 'ML-Aug CR'].join('\t');
+            const rows = state.observations.map((r, i) => [
+                i + 1, r.B, r.r, r.D, r.D_hat, r.lambda, r.laBuyDay, r.optCost, r.classCR, r.laCost, r.laCR
+            ].join('\t'));
+            const tsv = [header, ...rows].join('\n');
+
+            const textarea = document.createElement('textarea');
+            textarea.value = tsv;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const toast = document.getElementById('copy-toast');
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        function clearObservationTable() {
+            state.observations = [];
+            renderObservationTable();
+        }
+
+        // ---------------------------------------------------------
+        // 5. MONTE CARLO & PARETO FRONTIER SIMULATIONS
+        // ---------------------------------------------------------
+        function randn() {
+            let u = 0, v = 0;
+            while (u === 0) u = Math.random();
+            while (v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+
+        function runAnalyticsSimulations() {
+            const k = Math.max(10, Math.round(state.B / state.r));
+            const activeLam = state.lambda;
+            const trials = parseInt(document.getElementById('trial-count-select').value || '600', 10);
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(148, 163, 184, 0.12)' : 'rgba(148, 163, 184, 0.2)';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+
+            // --- PART A: Monte Carlo Noise Sensitivity ---
+            const sigmas = [0, 10, 20, 35, 50, 70, 90, 120, 150];
+            const trueDs = Array.from({ length: trials }, () => Math.floor(Math.random() * (2.5 * k)) + 1);
+
+            const classicalMeans = [];
+            const activeLamMeans = [];
+            const lowLamMeans = [];
+
+            sigmas.forEach(sigma => {
+                let sumClass = 0;
+                let sumActive = 0;
+                let sumLow = 0;
+
+                for (let i = 0; i < trials; i++) {
+                    const d = trueDs[i];
+                    const opt = calcOptimalCost(d, k, 1);
+                    const pred = Math.max(1, d + randn() * sigma);
+
+                    sumClass += calcClassicalCost(d, k, 1) / opt;
+                    sumActive += calcLearningAugmentedCost(d, k, 1, pred, activeLam) / opt;
+                    sumLow += calcLearningAugmentedCost(d, k, 1, pred, 0.15) / opt;
+                }
+
+                classicalMeans.push(Number((sumClass / trials).toFixed(3)));
+                activeLamMeans.push(Number((sumActive / trials).toFixed(3)));
+                lowLamMeans.push(Number((sumLow / trials).toFixed(3)));
+            });
+
+            if (noiseChart) noiseChart.destroy();
+            const noiseCtx = document.getElementById('noiseChart').getContext('2d');
+            noiseChart = new Chart(noiseCtx, {
+                type: 'line',
+                data: {
+                    labels: sigmas.map(s => `σ=${s}`),
+                    datasets: [
+                        {
+                            label: `Your λ = ${activeLam.toFixed(2)}`,
+                            data: activeLamMeans,
+                            borderColor: '#4f46e5',
+                            backgroundColor: '#4f46e5',
+                            borderWidth: 3,
+                            tension: 0.25
+                        },
+                        {
+                            label: 'High Trust (λ = 0.15)',
+                            data: lowLamMeans,
+                            borderColor: '#06b6d4',
+                            backgroundColor: '#06b6d4',
+                            borderWidth: 2,
+                            tension: 0.25
+                        },
+                        {
+                            label: 'Classical Deterministic (No ML)',
+                            data: classicalMeans,
+                            borderColor: isDark ? '#94a3b8' : '#475569',
+                            borderDash: [6, 4],
+                            borderWidth: 2,
+                            pointRadius: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: textColor, font: { family: 'Inter', size: 11 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 11 } }
+                        },
+                        y: {
+                            min: 1.0,
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: textColor,
+                                font: { family: 'JetBrains Mono', size: 11 },
+                                callback: v => `${v.toFixed(2)}×`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- PART B: Consistency vs Robustness Pareto Frontier ---
+            const lambdaGrid = [];
+            const theoCons = [];
+            const theoRob = [];
+            const classicalLine = [];
+
+            for (let l = 0.10; l <= 1.001; l += 0.05) {
+                const lam = Number(l.toFixed(2));
+                lambdaGrid.push(lam.toFixed(2));
+                theoCons.push(Number((1 + lam).toFixed(3)));
+                theoRob.push(Number((1 + 1 / lam).toFixed(3)));
+                classicalLine.push(2.0);
+            }
+
+            if (paretoChart) paretoChart.destroy();
+            const paretoCtx = document.getElementById('paretoChart').getContext('2d');
+            paretoChart = new Chart(paretoCtx, {
+                type: 'line',
+                data: {
+                    labels: lambdaGrid,
+                    datasets: [
+                        {
+                            label: 'Consistency Bound (1 + λ)',
+                            data: theoCons,
+                            borderColor: '#10b981',
+                            backgroundColor: '#10b981',
+                            borderWidth: 2.5,
+                            tension: 0.2
+                        },
+                        {
+                            label: 'Robustness Bound (1 + 1/λ)',
+                            data: theoRob,
+                            borderColor: '#f43f5e',
+                            backgroundColor: '#f43f5e',
+                            borderWidth: 2.5,
+                            tension: 0.2
+                        },
+                        {
+                            label: 'Classical Worst-Case (2.0×)',
+                            data: classicalLine,
+                            borderColor: isDark ? '#94a3b8' : '#64748b',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: textColor, font: { family: 'Inter', size: 11 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Trust Hyperparameter λ', color: textColor, font: { size: 11 } },
+                            grid: { display: false },
+                            ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 10 } }
+                        },
+                        y: {
+                            min: 0.8,
+                            max: 11.5,
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: textColor,
+                                font: { family: 'JetBrains Mono', size: 11 },
+                                callback: v => `${v.toFixed(1)}×`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ---------------------------------------------------------
+        // 6. PRESETS, TABS & SYNCHRONIZED EVENT LISTENERS
+        // ---------------------------------------------------------
+        function applyPreset(type) {
+            if (type === 'consistent') {
+                state.B = 1000; state.r = 10; state.D = 150; state.D_hat = 150; state.lambda = 0.20;
+            } else if (type === 'adv_short') {
+                state.B = 1000; state.r = 10; state.D = 260; state.D_hat = 15; state.lambda = 0.25;
+            } else if (type === 'adv_long') {
+                state.B = 1000; state.r = 10; state.D = 22; state.D_hat = 180; state.lambda = 0.20;
+            }
+            syncInputsToState();
+            updateEpisodeSimulator();
+            if (state.activeTab === 'analytics') runAnalyticsSimulations();
+        }
+
+        function resetDefaults() {
+            state.B = 1000; state.r = 10; state.D = 120; state.D_hat = 115; state.lambda = 0.30;
+            syncInputsToState();
+            updateEpisodeSimulator();
+        }
+
+        function switchTab(tabName) {
+            state.activeTab = tabName;
+            ['simulator', 'analytics', 'theory'].forEach(t => {
+                const panel = document.getElementById(`panel-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabName) {
+                    panel.classList.remove('hidden');
+                    btn.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm transition-all';
+                } else {
+                    panel.classList.add('hidden');
+                    btn.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all';
+                }
+            });
+
+            if (tabName === 'analytics') {
+                runAnalyticsSimulations();
+            }
+        }
+
+        // Bind synchronized numeric + slider listeners
+        function bindDualInput(numId, sliderId, key, isFloat = false, minVal = 1, maxVal = 100000) {
+            const numEl = document.getElementById(numId);
+            const sliderEl = document.getElementById(sliderId);
+
+            sliderEl.addEventListener('input', (e) => {
+                state[key] = isFloat ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
+                numEl.value = isFloat ? state[key].toFixed(2) : state[key];
+                updateEpisodeSimulator();
+            });
+
+            numEl.addEventListener('input', (e) => {
+                let val = isFloat ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
+                if (isNaN(val)) return;
+                val = Math.min(maxVal, Math.max(minVal, val));
+                state[key] = val;
+                sliderEl.value = Math.min(parseFloat(sliderEl.max), Math.max(parseFloat(sliderEl.min), val));
+                updateEpisodeSimulator();
+            });
+        }
+
+        bindDualInput('num-B', 'input-B', 'B', false, 1, 100000);
+        bindDualInput('num-r', 'input-r', 'r', false, 1, 10000);
+        bindDualInput('num-D', 'input-D', 'D', false, 1, 2000);
+        bindDualInput('num-Dhat', 'input-Dhat', 'D_hat', false, 1, 2000);
+        bindDualInput('num-lambda', 'input-lambda', 'lambda', true, 0.05, 1.00);
+
+        document.getElementById('sim-lambda-slider').addEventListener('input', (e) => {
+            state.lambda = parseFloat(e.target.value);
+            syncInputsToState();
+            updateEpisodeSimulator();
+            runAnalyticsSimulations();
+        });
+
+        // Theme toggle handler
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            updateEpisodeSimulator();
+            if (state.activeTab === 'analytics') {
+                runAnalyticsSimulations();
+            }
+        });
+
+        // Initialize on load with one starter row in the Observation Table
+        window.addEventListener('DOMContentLoaded', () => {
+            syncInputsToState();
+            updateEpisodeSimulator();
+            logCurrentObservation();
+        });
+    </script>
+</body>
+</html>
